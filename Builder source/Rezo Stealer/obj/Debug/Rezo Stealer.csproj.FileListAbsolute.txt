@@ -1,0 +1,10 @@
+E:\GAMES\Visual Studio 2019 Community\MyProject\Rezo Stealer\Rezo Stealer\bin\Debug\Rezo Stealer.exe
+E:\GAMES\Visual Studio 2019 Community\MyProject\Rezo Stealer\Rezo Stealer\bin\Debug\Rezo Stealer.pdb
+E:\GAMES\Visual Studio 2019 Community\MyProject\Rezo Stealer\Rezo Stealer\obj\Debug\Rezo_Stealer.Form1.resources
+E:\GAMES\Visual Studio 2019 Community\MyProject\Rezo Stealer\Rezo Stealer\obj\Debug\Rezo_Stealer.Properties.Resources.resources
+E:\GAMES\Visual Studio 2019 Community\MyProject\Rezo Stealer\Rezo Stealer\obj\Debug\Rezo Stealer.csproj.GenerateResource.cache
+E:\GAMES\Visual Studio 2019 Community\MyProject\Rezo Stealer\Rezo Stealer\obj\Debug\Rezo Stealer.csproj.CoreCompileInputs.cache
+E:\GAMES\Visual Studio 2019 Community\MyProject\Rezo Stealer\Rezo Stealer\obj\Debug\Rezo Stealer.exe
+E:\GAMES\Visual Studio 2019 Community\MyProject\Rezo Stealer\Rezo Stealer\obj\Debug\Rezo Stealer.pdb
+E:\GAMES\Visual Studio 2019 Community\MyProject\Rezo Stealer\Rezo Stealer\obj\Debug\Rezo Stealer.csprojAssemblyReference.cache
+E:\GAMES\Visual Studio 2019 Community\MyProject\Rezo Stealer\Rezo Stealer\bin\Debug\Rezo Stealer.exe.config

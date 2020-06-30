@@ -1,0 +1,38 @@
+using System;
+using System.Reflection;
+using System.Runtime.InteropServices;
+using System.Threading;
+
+namespace Stealer.modules
+{
+    internal class CheckPovt
+    {
+        public static void CheckPril()
+        {
+            if (Inizialize() == false)
+            {
+                Environment.Exit(0);
+            }
+        }
+
+        private static string GetGUID()
+        {
+            string result;
+            try
+            {
+                Assembly assembly = typeof(CheckPovt).Assembly;
+                var attribute = (GuidAttribute)assembly.GetCustomAttributes(typeof(GuidAttribute), true)[0];
+                result = attribute.Value;
+            }
+            catch { result = "CF2D4313-33DE-489D-9721-6AFF69841DEY"; }
+            return result.ToUpper();
+        }
+        private static bool Inizialize()
+        {
+            bool isNew;
+            var app = new Mutex(true, GetGUID(), out isNew);
+            GC.KeepAlive(app);
+            return isNew;
+        }
+    }
+}

